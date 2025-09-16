@@ -88,6 +88,30 @@ const Button = ({ children, onClick, style }) => (
   </button>
 );
 
+// UI helpers for the profile page
+const Badge = ({ children }) => (
+  <span style={{
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    background: `${Brand.accent}22`,
+    color: Brand.accent,
+    borderRadius: 999,
+    padding: "6px 10px",
+    fontSize: 11,
+    fontWeight: 800,
+  }}>{children}</span>
+);
+
+const StarRow = ({ value = 5 }) => (
+  <span aria-label={`${value} stars`}>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <span key={i} style={{ color: i < value ? "#f59e0b" : "#e2e8f0", marginRight: 2 }}>★</span>
+    ))}
+  </span>
+);
+
+
 // Bottom tab bar
 const BottomTabs = ({ active, onSelect }) => {
   const item = (key, label, emoji) => (
@@ -239,45 +263,105 @@ const ResultsScreen = ({ category, onBack, onSelectSupplier, onSelectTab }) => (
   </Phone>
 );
 
-const SupplierProfile = ({ name, onBack, onBook, onSelectTab }) => (
-  <Phone bg={Brand.bg}>
-    <TopBar title="Supplier Profile" onBack={onBack} />
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <img
-          src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=150&auto=format&fit=crop"
-          alt="profile"
-          style={{ width: 80, height: 80, borderRadius: 999, objectFit: "cover" }}
-        />
-        <div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: Brand.text }}>{name}</div>
-          <div style={{ fontSize: 12, color: Brand.muted }}>10 years experience</div>
-          <div style={{ fontSize: 12, color: "#b45309" }}>★ 4.8 (120 reviews)</div>
+const SupplierProfile = ({ name, onBack, onBook, onSelectTab }) => {
+  const packages = [
+    { tier: "Bronze", price: 150, unit: "/hr" },
+    { tier: "Silver", price: 300, unit: "" },
+    { tier: "Gold", price: 500, unit: "" },
+  ];
+  const availability = [
+    "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1520975661595-6453be3f7070?q=80&w=400&auto=format&fit=crop",
+  ];
+
+  return (
+    <Phone bg={Brand.bg}>
+      <TopBar title="Supplier Profile" onBack={onBack} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {/* Header with avatar, name, rating & badges */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <img src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop" alt="avatar" style={{ width: 96, height: 96, borderRadius: 999, objectFit: "cover" }}/>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: Brand.text }}>{name || "George Harris"}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
+              <StarRow value={5} />
+              <span style={{ fontWeight: 700, color: Brand.text }}>4.8</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              <Badge>✔︎ Verified</Badge>
+              <Badge>🛡 Insured</Badge>
+            </div>
+          </div>
         </div>
+
+        {/* Bio */}
+        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Bio</div>
+        <Card>
+          DJ with 10 years of experience performing at weddings, parties, and corporate events.
+        </Card>
+
+        {/* Services Offered (packages) */}
+        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Services Offered</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {packages.map((p) => (
+            <div key={p.tier} style={{ ...styles.card, padding: 14 }}>
+              <div style={{ fontSize: 16, fontWeight: 900 }}>{p.tier}</div>
+              <div style={{ marginTop: 6, fontWeight: 800 }}>€ {p.price}<span style={{ fontSize: 12, color: Brand.muted }}>{p.unit}</span></div>
+            </div>
+          ))}
+        </div>
+
+        {/* Availability (gallery) */}
+        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Availability</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+          {availability.map((src, i) => (
+            <img key={i} src={src} alt="availability" style={{ width: "100%", height: 84, objectFit: "cover", borderRadius: 12 }} />
+          ))}
+        </div>
+
+        {/* Portfolio (blurb + map tile) */}
+        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Portfolio</div>
+        <Card>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <StarRow value={5} /><span style={{ fontWeight: 700, color: Brand.text }}>5</span>
+              </div>
+              <div style={{ marginTop: 6 }}>
+                Absolutely fantastic DJ! Kept the dance floor packed all night.
+              </div>
+            </div>
+            <img src="https://maps.geoapify.com/v1/staticmap?style=osm-carto&width=140&height=120&center=lonlat:-6.2603,53.3498&zoom=11&apiKey=demo" alt="Dublin map" style={{ width: 140, height: 120, objectFit: "cover", borderRadius: 12 }}/>
+          </div>
+        </Card>
+
+        {/* Reviews */}
+        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Reviews</div>
+        <Card>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop" alt="reviewer" style={{ width: 40, height: 40, borderRadius: 999, objectFit: "cover" }} />
+            <div>
+              <div style={{ fontWeight: 800 }}>Maria P.</div>
+              <StarRow value={5} />
+            </div>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            Incredible set, super professional and friendly. Would absolutely recommend!
+          </div>
+        </Card>
+
+        {/* CTA */}
+        <div style={{ display: "flex", gap: 8 }}>
+          <Button style={{ flex: 1, background: "#475569" }}>Message</Button>
+          <Button style={{ flex: 1 }} onClick={() => onBook("Silver")}>Book Now</Button>
+        </div>
+
+        <BottomTabs active="home" onSelect={onSelectTab} />
       </div>
-      <Card>
-        Energetic professional providing services for weddings, parties, and corporate events.
-      </Card>
-      <div>
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>Packages</div>
-        <Card style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Bronze Package</span>
-          <span>£250</span>
-        </Card>
-        <Card style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-          <span>Silver Package</span>
-          <span>£400</span>
-        </Card>
-        <Card style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-          <span>Gold Package</span>
-          <span>£650</span>
-        </Card>
-      </div>
-      <Button onClick={onBook} style={{ width: "100%" }}>Book Now</Button>
-      <BottomTabs active="home" onSelect={onSelectTab} />
-    </div>
-  </Phone>
-);
+    </Phone>
+  );
+};
 
 const BookingScreen = ({ supplier, onBack, onSelectTab }) => (
   <Phone bg={Brand.bg}>
