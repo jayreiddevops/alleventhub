@@ -1,5 +1,5 @@
-// Single-screen demo with bottom tab bar (Home / Bookings / Help / Profile)
-// Flow: Home → Results → Supplier Profile → Booking, plus tab navigation.
+// Single-screen demo with bottom tab bar and searchable categories
+// Flow: Home → Results → Supplier Profile → Booking, plus tab navigation and search.
 
 import React, { useState } from "react";
 
@@ -133,7 +133,7 @@ const BottomTabs = ({ active, onSelect }) => {
 };
 
 // Screens
-const HomeScreen = ({ onSelectCategory, onSelectTab }) => {
+const HomeScreen = ({ onSelectCategory, onSelectTab, onSearch }) => {
   const categories = [
     { label: "DJs", icon: "🎧" },
     { label: "Event Hosts", icon: "🎤" },
@@ -145,6 +145,17 @@ const HomeScreen = ({ onSelectCategory, onSelectTab }) => {
     { label: "Mobile Bars", icon: "🍸" },
     { label: "Light Up Letters", icon: "🔤" },
   ];
+  const [query, setQuery] = React.useState("");
+  const filtered = query
+    ? categories.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()))
+    : categories;
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+    onSearch?.(query.trim());
+  };
+
   return (
     <Phone bg={Brand.bg}>
       <TopBar title="Home" />
@@ -153,17 +164,35 @@ const HomeScreen = ({ onSelectCategory, onSelectTab }) => {
           <span style={{ color: Brand.text }}>📍 London, UK</span>
           <span style={{ color: Brand.accent, fontWeight: 600 }}>Change ▾</span>
         </div>
-        <input
-          placeholder="Search services, equipment, or crew"
-          style={{
-            width: "100%",
-            borderRadius: 999,
-            border: "1px solid #e5e7eb",
-            padding: "12px 16px",
-          }}
-        />
+
+        {/* Search bar */}
+        <form onSubmit={submit} style={{ position: "relative" }}>
+          <span style={{ position: "absolute", left: 12, top: 10, fontSize: 16 }}>🔎</span>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') submit(e); }}
+            placeholder="Find services, equipment, or crew"
+            style={{
+              width: "100%",
+              height: 44,
+              borderRadius: 999,
+              border: "1px solid #e5e7eb",
+              padding: "0 88px 0 36px",
+              fontSize: 14,
+              outline: "none",
+              background: "#fff",
+            }}
+          />
+          {query && (
+            <button type="button" onClick={() => setQuery("")} style={{ position: "absolute", right: 88, top: 8, border: 0, background: "transparent", cursor: "pointer", fontSize: 14, color: Brand.muted }}>✕</button>
+          )}
+          <button type="submit" style={{ position: "absolute", right: 6, top: 6, background: Brand.accent, color: "#fff", border: 0, borderRadius: 999, padding: "8px 14px", fontWeight: 700, cursor: "pointer" }}>Search</button>
+        </form>
+
+        {/* Category grid (filters as you type) */}
         <div style={styles.grid}>
-          {categories.map((c) => (
+          {filtered.map((c) => (
             <div
               key={c.label}
               onClick={() => onSelectCategory(c.label)}
@@ -173,6 +202,9 @@ const HomeScreen = ({ onSelectCategory, onSelectTab }) => {
               <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>{c.label}</div>
             </div>
           ))}
+          {filtered.length === 0 && (
+            <div style={{ gridColumn: "1 / -1", fontSize: 12, color: Brand.muted }}>No categories match “{query}”.</div>
+          )}
         </div>
         <BottomTabs active="home" onSelect={onSelectTab} />
       </div>
@@ -272,8 +304,26 @@ export default function App() {
     if (tab === "profile") setView("profileTab");
   };
 
+  // Search handler: route to best matching category
+  const handleSearch = (q) => {
+    const cats = [
+      "DJs",
+      "Event Hosts",
+      "AV & Lighting",
+      "Catering",
+      "Photography",
+      "Videography",
+      "Photobooth’s",
+      "Mobile Bars",
+      "Light Up Letters",
+    ];
+    const match = cats.find((c) => c.toLowerCase().includes(q.toLowerCase())) || "Photography";
+    setCategory(match);
+    setView("results");
+  };
+
   let screen;
-  if (view === "home") screen = <HomeScreen onSelectCategory={(c) => { setCategory(c); setView("results"); }} onSelectTab={handleTab} />;
+  if (view === "home") screen = <HomeScreen onSelectCategory={(c) => { setCategory(c); setView("results"); }} onSelectTab={handleTab} onSearch={handleSearch} />;
   if (view === "results") screen = <ResultsScreen category={category} onBack={() => setView("home")} onSelectSupplier={(s) => { setSupplier(s); setView("profile"); }} onSelectTab={handleTab} />;
   if (view === "profile") screen = <SupplierProfile name={supplier} onBack={() => setView("results")} onBook={() => setView("booking")} onSelectTab={handleTab} />;
   if (view === "booking") screen = <BookingScreen supplier={supplier || "Your bookings"} onBack={() => setView("home")} onSelectTab={handleTab} />;
