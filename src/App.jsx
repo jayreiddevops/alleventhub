@@ -1,7 +1,6 @@
-// Single-screen demo with bottom tab bar and searchable categories
-// Flow: Home → Results → Supplier Profile → Booking, plus tab navigation and search.
+// Booking + Bookings List pages for AllEventHub
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const Brand = {
   primary: "#0D9488",
@@ -39,12 +38,6 @@ const styles = {
     borderRadius: 16,
     boxShadow: "0 1px 2px rgba(15,23,42,0.06)",
     padding: 12,
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 12,
-    marginTop: 8,
   },
   pill: {
     background: "#14B8A6",
@@ -88,31 +81,6 @@ const Button = ({ children, onClick, style }) => (
   </button>
 );
 
-// UI helpers for the profile page
-const Badge = ({ children }) => (
-  <span style={{
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    background: `${Brand.accent}22`,
-    color: Brand.accent,
-    borderRadius: 999,
-    padding: "6px 10px",
-    fontSize: 11,
-    fontWeight: 800,
-  }}>{children}</span>
-);
-
-const StarRow = ({ value = 5 }) => (
-  <span aria-label={`${value} stars`}>
-    {Array.from({ length: 5 }).map((_, i) => (
-      <span key={i} style={{ color: i < value ? "#f59e0b" : "#e2e8f0", marginRight: 2 }}>★</span>
-    ))}
-  </span>
-);
-
-
-// Bottom tab bar
 const BottomTabs = ({ active, onSelect }) => {
   const item = (key, label, emoji) => (
     <button
@@ -156,284 +124,128 @@ const BottomTabs = ({ active, onSelect }) => {
   );
 };
 
-// Screens
-const HomeScreen = ({ onSelectCategory, onSelectTab, onSearch }) => {
-  const categories = [
-    { label: "DJs", icon: "🎧" },
-    { label: "Event Hosts", icon: "🎤" },
-    { label: "AV & Lighting", icon: "💡" },
-    { label: "Catering", icon: "🧑‍🍳" },
-    { label: "Photography", icon: "📷" },
-    { label: "Videography", icon: "🎥" },
-    { label: "Photobooth’s", icon: "🤳" },
-    { label: "Mobile Bars", icon: "🍸" },
-    { label: "Light Up Letters", icon: "🔤" },
-  ];
-  const [query, setQuery] = React.useState("");
-  const filtered = query
-    ? categories.filter((c) => c.label.toLowerCase().includes(query.toLowerCase()))
-    : categories;
-
-  const submit = (e) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    onSearch?.(query.trim());
-  };
+// Booking form page
+const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (€300)", onBack, onConfirm, onSelectTab }) => {
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [notes, setNotes] = useState("");
 
   return (
     <Phone bg={Brand.bg}>
-      <TopBar title="Home" />
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, paddingInline: 4 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
-          <span style={{ color: Brand.text }}>📍 London, UK</span>
-          <span style={{ color: Brand.accent, fontWeight: 600 }}>Change ▾</span>
-        </div>
-
-        {/* Search bar */}
-        <form onSubmit={submit} style={{ position: "relative", display: "flex", justifyContent: "center" }}>
-          <span style={{ position: "absolute", left: 12, top: 10, fontSize: 16 }}>🔎</span>
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') submit(e); }}
-            placeholder="Find services, equipment, or crew"
-            style={{
-              maxWidth: 260,
-              height: 40,
-              borderRadius: 999,
-              border: "1px solid #e5e7eb",
-              padding: "0 80px 0 36px",
-              fontSize: 14,
-              outline: "none",
-              background: "#fff",
-            }}
-          />
-          {query && (
-            <button type="button" onClick={() => setQuery("")} style={{ position: "absolute", right: 88, top: 8, border: 0, background: "transparent", cursor: "pointer", fontSize: 14, color: Brand.muted }}>✕</button>
-          )}
-          
-        </form>
-
-        {/* Category grid (filters as you type) */}
-        <div style={styles.grid}>
-          {filtered.map((c) => (
-            <div
-              key={c.label}
-              onClick={() => onSelectCategory(c.label)}
-              style={{ ...styles.card, textAlign: "center", cursor: "pointer" }}
-            >
-              <div style={{ fontSize: 24 }}>{c.icon}</div>
-              <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4 }}>{c.label}</div>
-            </div>
-          ))}
-          {filtered.length === 0 && (
-            <div style={{ gridColumn: "1 / -1", fontSize: 12, color: Brand.muted }}>No categories match “{query}”.</div>
-          )}
-        </div>
-        <BottomTabs active="home" onSelect={onSelectTab} />
-      </div>
-    </Phone>
-  );
-};
-
-const ResultsScreen = ({ category, onBack, onSelectSupplier, onSelectTab }) => (
-  <Phone bg={Brand.bg}>
-    <TopBar title={`${category} in London`} onBack={onBack} />
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      {[1, 2, 3].map((n) => (
-        <Card key={n}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <img
-              alt="provider"
-              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=120&auto=format&fit=crop"
-              style={{ width: 56, height: 56, borderRadius: 16, objectFit: "cover" }}
-            />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: Brand.text }}>
-                {category} Pro #{n}
-              </div>
-              <div style={{ fontSize: 12, color: Brand.muted }}>From £{150 + n * 25}</div>
-            </div>
-            <Button onClick={() => onSelectSupplier(`${category} Pro #${n}`)}>View</Button>
-          </div>
-        </Card>
-      ))}
-      <BottomTabs active="home" onSelect={onSelectTab} />
-    </div>
-  </Phone>
-);
-
-const SupplierProfile = ({ name, onBack, onBook, onSelectTab }) => {
-  const packages = [
-    { tier: "Bronze", price: 150, unit: "/hr" },
-    { tier: "Silver", price: 300, unit: "" },
-    { tier: "Gold", price: 500, unit: "" },
-  ];
-  const availability = [
-    "https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&w=400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1520975661595-6453be3f7070?q=80&w=400&auto=format&fit=crop",
-  ];
-
-  return (
-    <Phone bg={Brand.bg}>
-      <TopBar title="Supplier Profile" onBack={onBack} />
+      <TopBar title="Booking" onBack={onBack} />
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-        {/* Header with avatar, name, rating & badges */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <img src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?q=80&w=200&auto=format&fit=crop" alt="avatar" style={{ width: 96, height: 96, borderRadius: 999, objectFit: "cover" }}/>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 22, fontWeight: 900, color: Brand.text }}>{name || "George Harris"}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
-              <StarRow value={5} />
-              <span style={{ fontWeight: 700, color: Brand.text }}>4.8</span>
-            </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <Badge>✔︎ Verified</Badge>
-              <Badge>🛡 Insured</Badge>
-            </div>
-          </div>
-        </div>
-
-        {/* Bio */}
-        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Bio</div>
         <Card>
-          DJ with 10 years of experience performing at weddings, parties, and corporate events.
+          <div style={{ fontSize: 18, fontWeight: 800 }}>{supplier}</div>
+          <div style={{ fontSize: 14, marginTop: 4, color: Brand.muted }}>Package: {selectedPackage}</div>
         </Card>
 
-        {/* Services Offered (packages) */}
-        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Services Offered</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-          {packages.map((p) => (
-            <div key={p.tier} style={{ ...styles.card, padding: 14 }}>
-              <div style={{ fontSize: 16, fontWeight: 900 }}>{p.tier}</div>
-              <div style={{ marginTop: 6, fontWeight: 800 }}>€ {p.price}<span style={{ fontSize: 12, color: Brand.muted }}>{p.unit}</span></div>
-            </div>
-          ))}
-        </div>
+        <div style={{ fontSize: 16, fontWeight: 800 }}>Choose Date</div>
+        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...styles.card, padding: 10, fontSize: 14 }} />
 
-        {/* Availability (gallery) */}
-        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Availability</div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-          {availability.map((src, i) => (
-            <img key={i} src={src} alt="availability" style={{ width: "100%", height: 84, objectFit: "cover", borderRadius: 12 }} />
-          ))}
-        </div>
+        <div style={{ fontSize: 16, fontWeight: 800 }}>Choose Time</div>
+        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} style={{ ...styles.card, padding: 10, fontSize: 14 }} />
 
-        {/* Portfolio (blurb + map tile) */}
-        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Portfolio</div>
-        <Card>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <StarRow value={5} /><span style={{ fontWeight: 700, color: Brand.text }}>5</span>
-              </div>
-              <div style={{ marginTop: 6 }}>
-                Absolutely fantastic DJ! Kept the dance floor packed all night.
-              </div>
-            </div>
-            <img src="https://maps.geoapify.com/v1/staticmap?style=osm-carto&width=140&height=120&center=lonlat:-6.2603,53.3498&zoom=11&apiKey=demo" alt="Dublin map" style={{ width: 140, height: 120, objectFit: "cover", borderRadius: 12 }}/>
-          </div>
-        </Card>
+        <div style={{ fontSize: 16, fontWeight: 800 }}>Notes</div>
+        <textarea
+          placeholder="Add any special requests (optional)"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          style={{ ...styles.card, padding: 10, fontSize: 14, minHeight: 80, resize: "vertical" }}
+        />
 
-        {/* Reviews */}
-        <div style={{ fontSize: 18, fontWeight: 900, color: Brand.text }}>Reviews</div>
-        <Card>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=80&auto=format&fit=crop" alt="reviewer" style={{ width: 40, height: 40, borderRadius: 999, objectFit: "cover" }} />
-            <div>
-              <div style={{ fontWeight: 800 }}>Maria P.</div>
-              <StarRow value={5} />
-            </div>
-          </div>
-          <div style={{ marginTop: 8 }}>
-            Incredible set, super professional and friendly. Would absolutely recommend!
-          </div>
-        </Card>
+        <Button
+          style={{ width: "100%", marginTop: 12 }}
+          onClick={() => {
+          const payload = {
+            id: Date.now(),
+            supplier,
+            selectedPackage,
+            date,
+            time,
+            notes,
+            status: "Confirmed",
+            createdAt: new Date().toISOString(),
+          };
+          if (onConfirm) {
+            onConfirm(payload);
+          } else {
+            try {
+              const key = "aeh_bookings";
+              const current = JSON.parse(localStorage.getItem(key) || "[]");
+              current.unshift(payload);
+              localStorage.setItem(key, JSON.stringify(current));
+            } catch {}
+            alert(`Booked ${supplier} on ${date || "(date)"} at ${time || "(time)"} — ${selectedPackage}`);
+          }
+        }}
+        >
+          Confirm & Pay
+        </Button>
 
-        {/* CTA */}
-        <div style={{ display: "flex", gap: 8 }}>
-          <Button style={{ flex: 1, background: "#475569" }}>Message</Button>
-          <Button style={{ flex: 1 }} onClick={() => onBook("Silver")}>Book Now</Button>
-        </div>
-
-        <BottomTabs active="home" onSelect={onSelectTab} />
+        <BottomTabs active="bookings" onSelect={onSelectTab} />
       </div>
     </Phone>
   );
 };
 
-const BookingScreen = ({ supplier, onBack, onSelectTab }) => (
-  <Phone bg={Brand.bg}>
-    <TopBar title="Booking" onBack={onBack} />
-    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ fontSize: 18, fontWeight: 800, color: Brand.text }}>{supplier}</div>
-      <Card>[Calendar picker placeholder]</Card>
-      <div style={{ fontSize: 13, color: Brand.text }}>Selected Package: Silver (£400)</div>
-      <Button style={{ width: "100%" }}>Confirm & Pay</Button>
-      <BottomTabs active="bookings" onSelect={onSelectTab} />
-    </div>
-  </Phone>
-);
+// Bookings tab page (reads from localStorage)
+const BookingsTab = ({ onSelectTab }) => {
+  const [bookings, setBookings] = useState([]);
 
-export default function App() {
-  const [view, setView] = useState("home");
-  const [category, setCategory] = useState("DJs");
-  const [supplier, setSupplier] = useState(null);
+  useEffect(() => {
+    try {
+      const data = JSON.parse(localStorage.getItem("aeh_bookings") || "[]");
+      setBookings(data);
+    } catch {
+      setBookings([]);
+    }
+  }, []);
 
-  const handleTab = (tab) => {
-    if (tab === "home") setView("home");
-    if (tab === "bookings") setView("booking");
-    if (tab === "help") setView("help");
-    if (tab === "profile") setView("profileTab");
+  const cancel = (id) => {
+    const updated = bookings.map((b) =>
+      b.id === id ? { ...b, status: "Cancelled" } : b
+    );
+    setBookings(updated);
+    try {
+      localStorage.setItem("aeh_bookings", JSON.stringify(updated));
+    } catch {}
   };
-
-  // Search handler: route to best matching category
-  const handleSearch = (q) => {
-    const cats = [
-      "DJs",
-      "Event Hosts",
-      "AV & Lighting",
-      "Catering",
-      "Photography",
-      "Videography",
-      "Photobooth’s",
-      "Mobile Bars",
-      "Light Up Letters",
-    ];
-    const match = cats.find((c) => c.toLowerCase().includes(q.toLowerCase())) || "Photography";
-    setCategory(match);
-    setView("results");
-  };
-
-  let screen;
-  if (view === "home") screen = <HomeScreen onSelectCategory={(c) => { setCategory(c); setView("results"); }} onSelectTab={handleTab} onSearch={handleSearch} />;
-  if (view === "results") screen = <ResultsScreen category={category} onBack={() => setView("home")} onSelectSupplier={(s) => { setSupplier(s); setView("profile"); }} onSelectTab={handleTab} />;
-  if (view === "profile") screen = <SupplierProfile name={supplier} onBack={() => setView("results")} onBook={() => setView("booking")} onSelectTab={handleTab} />;
-  if (view === "booking") screen = <BookingScreen supplier={supplier || "Your bookings"} onBack={() => setView("home")} onSelectTab={handleTab} />;
-  if (view === "help") screen = (
-    <Phone bg={Brand.bg}>
-      <TopBar title="Help & Support" onBack={() => setView("home")} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <Card>FAQ coming soon. For now, email support@alleventhub.example</Card>
-        <BottomTabs active="help" onSelect={handleTab} />
-      </div>
-    </Phone>
-  );
-  if (view === "profileTab") screen = (
-    <Phone bg={Brand.bg}>
-      <TopBar title="My Profile" onBack={() => setView("home")} />
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <Card>Signed in as: demo@user.com</Card>
-        <Card>Upcoming bookings will appear here.</Card>
-        <BottomTabs active="profile" onSelect={handleTab} />
-      </div>
-    </Phone>
-  );
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f1f5f9", padding: 16 }}>
-      {screen}
-    </div>
+    <Phone bg={Brand.bg}>
+      <TopBar title="My Bookings" />
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        {bookings.length === 0 && (
+          <Card>
+            <div style={{ fontWeight: 800, marginBottom: 6 }}>No bookings yet</div>
+            <div style={{ fontSize: 13, color: Brand.muted }}>When you confirm a booking it will appear here.</div>
+            <Button style={{ marginTop: 10 }} onClick={() => onSelectTab?.("home")}>Find services</Button>
+          </Card>
+        )}
+
+        {bookings.map((b) => (
+          <Card key={b.id}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 900 }}>{b.supplier}</div>
+                <div style={{ fontSize: 12, color: Brand.muted }}>{b.selectedPackage}</div>
+                <div style={{ fontSize: 12 }}>{b.date} at {b.time}</div>
+                {b.notes && <div style={{ fontSize: 12, marginTop: 4 }}>“{b.notes}”</div>}
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 800, color: b.status === "Cancelled" ? "#ef4444" : Brand.accent }}>{b.status}</span>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <Button style={{ background: "#475569", flex: 1 }} onClick={() => alert(JSON.stringify(b, null, 2))}>View</Button>
+              <Button style={{ background: "#ef4444", flex: 1 }} onClick={() => cancel(b.id)}>Cancel</Button>
+            </div>
+          </Card>
+        ))}
+
+        <BottomTabs active="bookings" onSelect={onSelectTab} />
+      </div>
+    </Phone>
   );
-}
+};
+
+export { BookingPage, BookingsTab };
+export default BookingsTab;
