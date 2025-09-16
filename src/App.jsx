@@ -1,4 +1,4 @@
-// Booking + Bookings List pages for AllEventHub
+// Full AllEventHub Demo with Booking + BookingsTab + Navigation
 
 import React, { useState, useEffect } from "react";
 
@@ -156,28 +156,28 @@ const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (�
         <Button
           style={{ width: "100%", marginTop: 12 }}
           onClick={() => {
-          const payload = {
-            id: Date.now(),
-            supplier,
-            selectedPackage,
-            date,
-            time,
-            notes,
-            status: "Confirmed",
-            createdAt: new Date().toISOString(),
-          };
-          if (onConfirm) {
-            onConfirm(payload);
-          } else {
-            try {
-              const key = "aeh_bookings";
-              const current = JSON.parse(localStorage.getItem(key) || "[]");
-              current.unshift(payload);
-              localStorage.setItem(key, JSON.stringify(current));
-            } catch {}
-            alert(`Booked ${supplier} on ${date || "(date)"} at ${time || "(time)"} — ${selectedPackage}`);
-          }
-        }}
+            const payload = {
+              id: Date.now(),
+              supplier,
+              selectedPackage,
+              date,
+              time,
+              notes,
+              status: "Confirmed",
+              createdAt: new Date().toISOString(),
+            };
+            if (onConfirm) {
+              onConfirm(payload);
+            } else {
+              try {
+                const key = "aeh_bookings";
+                const current = JSON.parse(localStorage.getItem(key) || "[]");
+                current.unshift(payload);
+                localStorage.setItem(key, JSON.stringify(current));
+              } catch {}
+              alert(`Booked ${supplier} on ${date || "(date)"} at ${time || "(time)"} — ${selectedPackage}`);
+            }
+          }}
         >
           Confirm & Pay
         </Button>
@@ -247,5 +247,39 @@ const BookingsTab = ({ onSelectTab }) => {
   );
 };
 
+// Root app with navigation between tabs
+export default function App() {
+  const [view, setView] = useState("bookings"); // default to bookings tab
+
+  let screen;
+  if (view === "bookings") screen = <BookingsTab onSelectTab={setView} />;
+  if (view === "bookingForm") screen = <BookingPage onSelectTab={setView} />;
+  if (view === "home") screen = (
+    <Phone bg={Brand.bg}>
+      <TopBar title="Home" />
+      <Card>
+        <div style={{ fontWeight: 800 }}>Welcome to AllEventHub</div>
+        <Button style={{ marginTop: 12 }} onClick={() => setView("bookingForm")}>New Booking</Button>
+      </Card>
+      <BottomTabs active="home" onSelect={setView} />
+    </Phone>
+  );
+  if (view === "help") screen = (
+    <Phone bg={Brand.bg}>
+      <TopBar title="Help" />
+      <Card>Help & FAQs placeholder</Card>
+      <BottomTabs active="help" onSelect={setView} />
+    </Phone>
+  );
+  if (view === "profile") screen = (
+    <Phone bg={Brand.bg}>
+      <TopBar title="Profile" />
+      <Card>Profile placeholder</Card>
+      <BottomTabs active="profile" onSelect={setView} />
+    </Phone>
+  );
+
+  return screen;
+}
+
 export { BookingPage, BookingsTab };
-export default BookingsTab;
