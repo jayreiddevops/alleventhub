@@ -1,5 +1,5 @@
-// Full demo flow with Home → Results → Supplier Profile → Booking
-// This is the complete `App.jsx` implementation to ship the stakeholder demo.
+// Single-screen demo flow with Home → Results → Supplier Profile → Booking
+// This version ensures only one screen is shown at a time, like a native app.
 
 import React, { useState } from "react";
 
@@ -148,9 +148,9 @@ const ResultsScreen = ({ category, onBack, onSelectSupplier }) => (
               style={{ width: 56, height: 56, borderRadius: 16, objectFit: "cover" }}
             />
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 14, fontWeight: 800, color: Brand.text }}>{
-                category
-              } Pro #{n}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, color: Brand.text }}>
+                {category} Pro #{n}
+              </div>
               <div style={{ fontSize: 12, color: Brand.muted }}>From £{150 + n * 25}</div>
             </div>
             <Button onClick={() => onSelectSupplier(`${category} Pro #${n}`)}>View</Button>
@@ -217,28 +217,15 @@ export default function App() {
   const [category, setCategory] = useState("DJs");
   const [supplier, setSupplier] = useState(null);
 
-  return (
-    <div style={{ display: "flex", gap: 24, padding: 24, flexWrap: "wrap" }}>
-      {/* Splash */}
-      <Phone bg={Brand.primary}>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: 640,
-          borderRadius: 32,
-          color: "#fff",
-          fontSize: 28,
-          fontWeight: 900,
-        }}>
-          AllEventHub
-        </div>
-      </Phone>
+  let screen;
+  if (view === "home") screen = <HomeScreen onSelectCategory={(c) => { setCategory(c); setView("results"); }} />;
+  if (view === "results") screen = <ResultsScreen category={category} onBack={() => setView("home")} onSelectSupplier={(s) => { setSupplier(s); setView("profile"); }} />;
+  if (view === "profile") screen = <SupplierProfile name={supplier} onBack={() => setView("results")} onBook={() => setView("booking")} />;
+  if (view === "booking") screen = <BookingScreen supplier={supplier} onBack={() => setView("profile")} />;
 
-      {view === "home" && <HomeScreen onSelectCategory={(c) => { setCategory(c); setView("results"); }} />}
-      {view === "results" && <ResultsScreen category={category} onBack={() => setView("home")} onSelectSupplier={(s) => { setSupplier(s); setView("profile"); }} />}
-      {view === "profile" && <SupplierProfile name={supplier} onBack={() => setView("results")} onBook={() => setView("booking")} />}
-      {view === "booking" && <BookingScreen supplier={supplier} onBack={() => setView("profile")} />}
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f1f5f9" }}>
+      {screen}
     </div>
   );
 }
