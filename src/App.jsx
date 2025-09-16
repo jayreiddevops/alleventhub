@@ -1,5 +1,4 @@
-// Full AllEventHub Demo with Booking + BookingsTab + Navigation
-
+// src/App.jsx
 import React, { useState, useEffect } from "react";
 
 const Brand = {
@@ -53,6 +52,7 @@ const styles = {
 const Phone = ({ children, bg }) => (
   <div style={{ ...styles.phone, background: bg ?? "#fff" }}>{children}</div>
 );
+
 const TopBar = ({ title, onBack }) => (
   <div style={styles.topbar}>
     {onBack && (
@@ -74,7 +74,10 @@ const TopBar = ({ title, onBack }) => (
     <span style={{ fontSize: 18 }}>{title}</span>
   </div>
 );
-const Card = ({ children, style }) => <div style={{ ...styles.card, ...style }}>{children}</div>;
+
+const Card = ({ children, style }) => (
+  <div style={{ ...styles.card, ...style }}>{children}</div>
+);
 const Button = ({ children, onClick, style }) => (
   <button style={{ ...styles.pill, ...style }} onClick={onClick}>
     {children}
@@ -101,21 +104,23 @@ const BottomTabs = ({ active, onSelect }) => {
     </button>
   );
   return (
-    <div style={{
-      position: "sticky",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      display: "flex",
-      gap: 8,
-      alignItems: "center",
-      justifyContent: "space-between",
-      marginTop: 12,
-      background: "#fff",
-      borderRadius: 999,
-      padding: "4px 8px",
-      boxShadow: "0 6px 14px rgba(15,23,42,0.10)",
-    }}>
+    <div
+      style={{
+        position: "sticky",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        display: "flex",
+        gap: 8,
+        alignItems: "center",
+        justifyContent: "space-between",
+        marginTop: 12,
+        background: "#fff",
+        borderRadius: 999,
+        padding: "4px 8px",
+        boxShadow: "0 6px 14px rgba(15,23,42,0.10)",
+      }}
+    >
       {item("home", "Home", "🏠")}
       {item("bookings", "Bookings", "📅")}
       {item("help", "Help", "❓")}
@@ -124,8 +129,14 @@ const BottomTabs = ({ active, onSelect }) => {
   );
 };
 
-// Booking form page
-const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (€300)", onBack, onConfirm, onSelectTab }) => {
+/* ---------- Booking form ---------- */
+const BookingPage = ({
+  supplier = "George Harris",
+  selectedPackage = "Silver (€300)",
+  onBack,
+  onConfirm,
+  onSelectTab,
+}) => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
@@ -136,21 +147,39 @@ const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (�
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         <Card>
           <div style={{ fontSize: 18, fontWeight: 800 }}>{supplier}</div>
-          <div style={{ fontSize: 14, marginTop: 4, color: Brand.muted }}>Package: {selectedPackage}</div>
+          <div style={{ fontSize: 14, marginTop: 4, color: Brand.muted }}>
+            Package: {selectedPackage}
+          </div>
         </Card>
 
         <div style={{ fontSize: 16, fontWeight: 800 }}>Choose Date</div>
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ ...styles.card, padding: 10, fontSize: 14 }} />
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          style={{ ...styles.card, padding: 10, fontSize: 14 }}
+        />
 
         <div style={{ fontSize: 16, fontWeight: 800 }}>Choose Time</div>
-        <input type="time" value={time} onChange={(e) => setTime(e.target.value)} style={{ ...styles.card, padding: 10, fontSize: 14 }} />
+        <input
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          style={{ ...styles.card, padding: 10, fontSize: 14 }}
+        />
 
         <div style={{ fontSize: 16, fontWeight: 800 }}>Notes</div>
         <textarea
           placeholder="Add any special requests (optional)"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          style={{ ...styles.card, padding: 10, fontSize: 14, minHeight: 80, resize: "vertical" }}
+          style={{
+            ...styles.card,
+            padding: 10,
+            fontSize: 14,
+            minHeight: 80,
+            resize: "vertical",
+          }}
         />
 
         <Button
@@ -175,7 +204,11 @@ const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (�
                 current.unshift(payload);
                 localStorage.setItem(key, JSON.stringify(current));
               } catch {}
-              alert(`Booked ${supplier} on ${date || "(date)"} at ${time || "(time)"} — ${selectedPackage}`);
+              alert(
+                `Booked ${supplier} on ${date || "(date)"} at ${
+                  time || "(time)"
+                } — ${selectedPackage}`
+              );
             }
           }}
         >
@@ -188,17 +221,20 @@ const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (�
   );
 };
 
-// Bookings tab page (reads from localStorage)
+/* ---------- Bookings tab ---------- */
 const BookingsTab = ({ onSelectTab }) => {
   const [bookings, setBookings] = useState([]);
 
-  useEffect(() => {
+  const load = () => {
     try {
-      const data = JSON.parse(localStorage.getItem("aeh_bookings") || "[]");
-      setBookings(data);
+      return JSON.parse(localStorage.getItem("aeh_bookings") || "[]");
     } catch {
-      setBookings([]);
+      return [];
     }
+  };
+
+  useEffect(() => {
+    setBookings(load());
   }, []);
 
   const cancel = (id) => {
@@ -217,9 +253,18 @@ const BookingsTab = ({ onSelectTab }) => {
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {bookings.length === 0 && (
           <Card>
-            <div style={{ fontWeight: 800, marginBottom: 6 }}>No bookings yet</div>
-            <div style={{ fontSize: 13, color: Brand.muted }}>When you confirm a booking it will appear here.</div>
-            <Button style={{ marginTop: 10 }} onClick={() => onSelectTab?.("home")}>Find services</Button>
+            <div style={{ fontWeight: 800, marginBottom: 6 }}>
+              No bookings yet
+            </div>
+            <div style={{ fontSize: 13, color: Brand.muted }}>
+              When you confirm a booking it will appear here.
+            </div>
+            <Button
+              style={{ marginTop: 10 }}
+              onClick={() => onSelectTab?.("home")}
+            >
+              Find services
+            </Button>
           </Card>
         )}
 
@@ -228,15 +273,41 @@ const BookingsTab = ({ onSelectTab }) => {
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 900 }}>{b.supplier}</div>
-                <div style={{ fontSize: 12, color: Brand.muted }}>{b.selectedPackage}</div>
-                <div style={{ fontSize: 12 }}>{b.date} at {b.time}</div>
-                {b.notes && <div style={{ fontSize: 12, marginTop: 4 }}>“{b.notes}”</div>}
+                <div style={{ fontSize: 12, color: Brand.muted }}>
+                  {b.selectedPackage}
+                </div>
+                <div style={{ fontSize: 12 }}>
+                  {b.date} at {b.time}
+                </div>
+                {b.notes && (
+                  <div style={{ fontSize: 12, marginTop: 4 }}>
+                    “{b.notes}”
+                  </div>
+                )}
               </div>
-              <span style={{ fontSize: 12, fontWeight: 800, color: b.status === "Cancelled" ? "#ef4444" : Brand.accent }}>{b.status}</span>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: b.status === "Cancelled" ? "#ef4444" : Brand.accent,
+                }}
+              >
+                {b.status}
+              </span>
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <Button style={{ background: "#475569", flex: 1 }} onClick={() => alert(JSON.stringify(b, null, 2))}>View</Button>
-              <Button style={{ background: "#ef4444", flex: 1 }} onClick={() => cancel(b.id)}>Cancel</Button>
+              <Button
+                style={{ background: "#475569", flex: 1 }}
+                onClick={() => alert(JSON.stringify(b, null, 2))}
+              >
+                View
+              </Button>
+              <Button
+                style={{ background: "#ef4444", flex: 1 }}
+                onClick={() => cancel(b.id)}
+              >
+                Cancel
+              </Button>
             </div>
           </Card>
         ))}
@@ -247,39 +318,58 @@ const BookingsTab = ({ onSelectTab }) => {
   );
 };
 
-// Root app with navigation between tabs
+/* ---------- Root app & navigation (centered) ---------- */
 export default function App() {
-  const [view, setView] = useState("bookings"); // default to bookings tab
+  const [view, setView] = useState("home"); // start on Home
 
   let screen;
   if (view === "bookings") screen = <BookingsTab onSelectTab={setView} />;
   if (view === "bookingForm") screen = <BookingPage onSelectTab={setView} />;
-  if (view === "home") screen = (
-    <Phone bg={Brand.bg}>
-      <TopBar title="Home" />
-      <Card>
-        <div style={{ fontWeight: 800 }}>Welcome to AllEventHub</div>
-        <Button style={{ marginTop: 12 }} onClick={() => setView("bookingForm")}>New Booking</Button>
-      </Card>
-      <BottomTabs active="home" onSelect={setView} />
-    </Phone>
-  );
-  if (view === "help") screen = (
-    <Phone bg={Brand.bg}>
-      <TopBar title="Help" />
-      <Card>Help & FAQs placeholder</Card>
-      <BottomTabs active="help" onSelect={setView} />
-    </Phone>
-  );
-  if (view === "profile") screen = (
-    <Phone bg={Brand.bg}>
-      <TopBar title="Profile" />
-      <Card>Profile placeholder</Card>
-      <BottomTabs active="profile" onSelect={setView} />
-    </Phone>
-  );
+  if (view === "home")
+    screen = (
+      <Phone bg={Brand.bg}>
+        <TopBar title="Home" />
+        <Card>
+          <div style={{ fontWeight: 800 }}>Welcome to AllEventHub</div>
+          <Button style={{ marginTop: 12 }} onClick={() => setView("bookingForm")}>
+            New Booking
+          </Button>
+        </Card>
+        <BottomTabs active="home" onSelect={setView} />
+      </Phone>
+    );
+  if (view === "help")
+    screen = (
+      <Phone bg={Brand.bg}>
+        <TopBar title="Help" />
+        <Card>Help & FAQs placeholder</Card>
+        <BottomTabs active="help" onSelect={setView} />
+      </Phone>
+    );
+  if (view === "profile")
+    screen = (
+      <Phone bg={Brand.bg}>
+        <TopBar title="Profile" />
+        <Card>Profile placeholder</Card>
+        <BottomTabs active="profile" onSelect={setView} />
+      </Phone>
+    );
 
-  return screen;
+  // Center the phone on page
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f1f5f9",
+        padding: 16,
+      }}
+    >
+      {screen}
+    </div>
+  );
 }
 
 export { BookingPage, BookingsTab };
