@@ -1,5 +1,5 @@
-// Single-screen demo flow with Home → Results → Supplier Profile → Booking
-// This version ensures only one screen is shown at a time, like a native app.
+// Single-screen demo with bottom tab bar (Home / Bookings / Help / Profile)
+// Flow: Home → Results → Supplier Profile → Booking, plus tab navigation.
 
 import React, { useState } from "react";
 
@@ -88,8 +88,52 @@ const Button = ({ children, onClick, style }) => (
   </button>
 );
 
+// Bottom tab bar
+const BottomTabs = ({ active, onSelect }) => {
+  const item = (key, label, emoji) => (
+    <button
+      key={key}
+      onClick={() => onSelect(key)}
+      style={{
+        flex: 1,
+        background: "transparent",
+        border: 0,
+        padding: "10px 0",
+        cursor: "pointer",
+        fontWeight: active === key ? 800 : 600,
+        color: active === key ? Brand.accent : Brand.muted,
+      }}
+    >
+      <div style={{ fontSize: 16 }}>{emoji}</div>
+      <div style={{ fontSize: 11 }}>{label}</div>
+    </button>
+  );
+  return (
+    <div style={{
+      position: "sticky",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      display: "flex",
+      gap: 8,
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: 12,
+      background: "#fff",
+      borderRadius: 999,
+      padding: "4px 8px",
+      boxShadow: "0 6px 14px rgba(15,23,42,0.10)",
+    }}>
+      {item("home", "Home", "🏠")}
+      {item("bookings", "Bookings", "📅")}
+      {item("help", "Help", "❓")}
+      {item("profile", "Profile", "👤")}
+    </div>
+  );
+};
+
 // Screens
-const HomeScreen = ({ onSelectCategory }) => {
+const HomeScreen = ({ onSelectCategory, onSelectTab }) => {
   const categories = [
     { label: "DJs", icon: "🎧" },
     { label: "Event Hosts", icon: "🎤" },
@@ -130,12 +174,13 @@ const HomeScreen = ({ onSelectCategory }) => {
             </div>
           ))}
         </div>
+        <BottomTabs active="home" onSelect={onSelectTab} />
       </div>
     </Phone>
   );
 };
 
-const ResultsScreen = ({ category, onBack, onSelectSupplier }) => (
+const ResultsScreen = ({ category, onBack, onSelectSupplier, onSelectTab }) => (
   <Phone bg={Brand.bg}>
     <TopBar title={`${category} in London`} onBack={onBack} />
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -157,11 +202,12 @@ const ResultsScreen = ({ category, onBack, onSelectSupplier }) => (
           </div>
         </Card>
       ))}
+      <BottomTabs active="home" onSelect={onSelectTab} />
     </div>
   </Phone>
 );
 
-const SupplierProfile = ({ name, onBack, onBook }) => (
+const SupplierProfile = ({ name, onBack, onBook, onSelectTab }) => (
   <Phone bg={Brand.bg}>
     <TopBar title="Supplier Profile" onBack={onBack} />
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -196,11 +242,12 @@ const SupplierProfile = ({ name, onBack, onBook }) => (
         </Card>
       </div>
       <Button onClick={onBook} style={{ width: "100%" }}>Book Now</Button>
+      <BottomTabs active="home" onSelect={onSelectTab} />
     </div>
   </Phone>
 );
 
-const BookingScreen = ({ supplier, onBack }) => (
+const BookingScreen = ({ supplier, onBack, onSelectTab }) => (
   <Phone bg={Brand.bg}>
     <TopBar title="Booking" onBack={onBack} />
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -208,6 +255,7 @@ const BookingScreen = ({ supplier, onBack }) => (
       <Card>[Calendar picker placeholder]</Card>
       <div style={{ fontSize: 13, color: Brand.text }}>Selected Package: Silver (£400)</div>
       <Button style={{ width: "100%" }}>Confirm & Pay</Button>
+      <BottomTabs active="bookings" onSelect={onSelectTab} />
     </div>
   </Phone>
 );
@@ -217,14 +265,40 @@ export default function App() {
   const [category, setCategory] = useState("DJs");
   const [supplier, setSupplier] = useState(null);
 
+  const handleTab = (tab) => {
+    if (tab === "home") setView("home");
+    if (tab === "bookings") setView("booking");
+    if (tab === "help") setView("help");
+    if (tab === "profile") setView("profileTab");
+  };
+
   let screen;
-  if (view === "home") screen = <HomeScreen onSelectCategory={(c) => { setCategory(c); setView("results"); }} />;
-  if (view === "results") screen = <ResultsScreen category={category} onBack={() => setView("home")} onSelectSupplier={(s) => { setSupplier(s); setView("profile"); }} />;
-  if (view === "profile") screen = <SupplierProfile name={supplier} onBack={() => setView("results")} onBook={() => setView("booking")} />;
-  if (view === "booking") screen = <BookingScreen supplier={supplier} onBack={() => setView("profile")} />;
+  if (view === "home") screen = <HomeScreen onSelectCategory={(c) => { setCategory(c); setView("results"); }} onSelectTab={handleTab} />;
+  if (view === "results") screen = <ResultsScreen category={category} onBack={() => setView("home")} onSelectSupplier={(s) => { setSupplier(s); setView("profile"); }} onSelectTab={handleTab} />;
+  if (view === "profile") screen = <SupplierProfile name={supplier} onBack={() => setView("results")} onBook={() => setView("booking")} onSelectTab={handleTab} />;
+  if (view === "booking") screen = <BookingScreen supplier={supplier || "Your bookings"} onBack={() => setView("home")} onSelectTab={handleTab} />;
+  if (view === "help") screen = (
+    <Phone bg={Brand.bg}>
+      <TopBar title="Help & Support" onBack={() => setView("home")} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <Card>FAQ coming soon. For now, email support@alleventhub.example</Card>
+        <BottomTabs active="help" onSelect={handleTab} />
+      </div>
+    </Phone>
+  );
+  if (view === "profileTab") screen = (
+    <Phone bg={Brand.bg}>
+      <TopBar title="My Profile" onBack={() => setView("home")} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <Card>Signed in as: demo@user.com</Card>
+        <Card>Upcoming bookings will appear here.</Card>
+        <BottomTabs active="profile" onSelect={handleTab} />
+      </div>
+    </Phone>
+  );
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f1f5f9" }}>
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#f1f5f9", padding: 16 }}>
       {screen}
     </div>
   );
