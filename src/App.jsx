@@ -166,7 +166,7 @@ const HomeScreen = ({ onSelectCategory, onSelectTab, onSearch }) => {
         </div>
 
         {/* Search bar */}
-        <form onSubmit={submit} style={{ position: "relative" }}>
+        <form onSubmit={submit} style={{ position: "relative", display: "flex", justifyContent: "center" }}>
           <span style={{ position: "absolute", left: 12, top: 10, fontSize: 16 }}>🔎</span>
           <input
             value={query}
@@ -174,11 +174,11 @@ const HomeScreen = ({ onSelectCategory, onSelectTab, onSearch }) => {
             onKeyDown={(e) => { if (e.key === 'Enter') submit(e); }}
             placeholder="Find services, equipment, or crew"
             style={{
-              width: "100%",
-              height: 44,
+              maxWidth: 260,
+              height: 40,
               borderRadius: 999,
               border: "1px solid #e5e7eb",
-              padding: "0 88px 0 36px",
+              padding: "0 80px 0 36px",
               fontSize: 14,
               outline: "none",
               background: "#fff",
