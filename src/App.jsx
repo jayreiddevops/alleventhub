@@ -187,7 +187,7 @@ const HomeScreen = ({ onSelectCategory, onSelectTab, onSearch }) => {
           {query && (
             <button type="button" onClick={() => setQuery("")} style={{ position: "absolute", right: 88, top: 8, border: 0, background: "transparent", cursor: "pointer", fontSize: 14, color: Brand.muted }}>✕</button>
           )}
-          <button type="submit" style={{ position: "absolute", right: 6, top: 6, background: Brand.accent, color: "#fff", border: 0, borderRadius: 999, padding: "8px 14px", fontWeight: 700, cursor: "pointer" }}>Search</button>
+          
         </form>
 
         {/* Category grid (filters as you type) */}
