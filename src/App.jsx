@@ -1,8 +1,10 @@
-// asp.jsx
+// src/App.jsx
+// All Event Hub — Branded demo with colored tiles, SVG footer icons, Help form & About
 
 import React, { useState, useEffect } from "react";
 import { Mic, Camera, Video, Music2, Lightbulb, Utensils, Type, Wine, Smile } from "lucide-react";
 
+// Brand system
 const Brand = {
   navy: "#0D1B2A",
   white: "#FFFFFF",
@@ -22,7 +24,8 @@ const styles = {
     padding: 16,
     margin: "0 auto",
     boxShadow: "0 8px 24px rgba(15,23,42,0.06)",
-    fontFamily: 'Nunito, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial',
+    fontFamily:
+      'Nunito, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial',
     background: Brand.white,
     minHeight: "90vh",
     display: "flex",
@@ -98,7 +101,11 @@ const TopBar = ({ title, onBack }) => (
         ‹
       </button>
     )}
-    <img src="/logo.png" alt="AllEventHub" style={{ height: 24, marginRight: 8, borderRadius: 4, background: Brand.white }} />
+    <img
+      src="/logo.png"
+      alt="AllEventHub"
+      style={{ height: 24, marginRight: 8, borderRadius: 4, background: Brand.white }}
+    />
     <span style={{ fontSize: 18 }}>{title}</span>
   </div>
 );
@@ -110,7 +117,26 @@ const Button = ({ children, onClick, style, type = "button" }) => (
   </button>
 );
 
-/* Bottom Tabs — SVG icons (no emojis) */
+const Badge = ({ children, tone = "teal" }) => (
+  <span
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 6,
+      background: tone === "teal" ? `${Brand.teal}22` : `${Brand.orange}22`,
+      color: tone === "teal" ? Brand.teal : Brand.orange,
+      borderRadius: 999,
+      padding: "6px 10px",
+      fontSize: 11,
+      fontWeight: 800,
+      fontFamily: "Nunito, sans-serif",
+    }}
+  >
+    {children}
+  </span>
+);
+
+/* ---------- Bottom Tabs (SVG icons) ---------- */
 const tabSvg = {
   home: (active) => (
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={active ? Brand.orange : Brand.navy} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 10v10h14V10"/></svg>
@@ -138,7 +164,19 @@ const BottomTabs = ({ active, onSelect }) => {
     { key: "profile", label: "Profile" },
   ];
   return (
-    <div style={{ marginTop: "auto", display: "flex", gap: 6, alignItems: "center", justifyContent: "space-between", background: Brand.white, borderRadius: 999, padding: "4px 6px", boxShadow: "0 6px 14px rgba(15,23,42,0.10)" }}>
+    <div
+      style={{
+        marginTop: "auto",
+        display: "flex",
+        gap: 6,
+        alignItems: "center",
+        justifyContent: "space-between",
+        background: Brand.white,
+        borderRadius: 999,
+        padding: "4px 6px",
+        boxShadow: "0 6px 14px rgba(15,23,42,0.10)",
+      }}
+    >
       {items.map((it) => (
         <button
           key={it.key}
@@ -162,20 +200,20 @@ const BottomTabs = ({ active, onSelect }) => {
   );
 };
 
-/* Home (tiles) + hero */
+/* ---------- Home tiles (with colored backgrounds) ---------- */
 const categories = [
-  { key: "dj", label: "DJs", icon: <Music2 size={28} color={Brand.navy} /> },
-  { key: "host", label: "Event Hosts", icon: <Mic size={28} color={Brand.navy} /> },
-  { key: "av", label: "AV & Lighting", icon: <Lightbulb size={28} color={Brand.navy} /> },
-  { key: "catering", label: "Catering", icon: <Utensils size={28} color={Brand.navy} /> },
-  { key: "photo", label: "Photography", icon: <Camera size={28} color={Brand.navy} /> },
-  { key: "video", label: "Videography", icon: <Video size={28} color={Brand.navy} /> },
-  { key: "booth", label: "Photobooth’s", icon: <Smile size={28} color={Brand.navy} /> },
-  { key: "bar", label: "Mobile Bars", icon: <Wine size={28} color={Brand.navy} /> },
-  { key: "letters", label: "Light Up Letters", icon: <Type size={28} color={Brand.navy} /> },
+  { key: "dj",      label: "DJs",            icon: <Music2 size={28} color={Brand.navy} />,     bg: "#1ABC9C22" }, // teal
+  { key: "host",    label: "Event Hosts",    icon: <Mic size={28} color={Brand.navy} />,        bg: "#FF8C4222" }, // orange
+  { key: "av",      label: "AV & Lighting",  icon: <Lightbulb size={28} color={Brand.navy} />,  bg: "#F4D35E22" }, // yellow
+  { key: "catering",label: "Catering",       icon: <Utensils size={28} color={Brand.navy} />,   bg: "#E6394622" }, // red
+  { key: "photo",   label: "Photography",    icon: <Camera size={28} color={Brand.navy} />,     bg: "#1ABC9C22" },
+  { key: "video",   label: "Videography",    icon: <Video size={28} color={Brand.navy} />,      bg: "#FF8C4222" },
+  { key: "booth",   label: "Photobooth’s",   icon: <Smile size={28} color={Brand.navy} />,      bg: "#F4D35E22" },
+  { key: "bar",     label: "Mobile Bars",    icon: <Wine size={28} color={Brand.navy} />,       bg: "#1ABC9C22" },
+  { key: "letters", label: "Light Up Letters", icon: <Type size={28} color={Brand.navy} />,     bg: "#0D1B2A15" }, // navy tint
 ];
 
-/* Results */
+/* ---------- Results (list) ---------- */
 const ResultsScreen = ({ category, onBack, onSelectSupplier }) => {
   const suppliers = [
     { id: 1, name: "George Harris", role: category, priceFrom: 250, rating: 4.8, jobs: 126, img: "https://i.pravatar.cc/100?img=12" },
@@ -205,7 +243,7 @@ const ResultsScreen = ({ category, onBack, onSelectSupplier }) => {
   );
 };
 
-/* Supplier Profile */
+/* ---------- Supplier Profile ---------- */
 const StarRow = ({ value = 5 }) => (
   <span aria-label={`${value} stars`}>
     {Array.from({ length: 5 }).map((_, i) => (
@@ -237,8 +275,8 @@ const SupplierProfile = ({ supplier, onBack, onBook }) => {
               <StarRow value={5} /><span style={{ fontWeight: 700, color: Brand.text }}>4.8</span>
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              <Button style={{ background: `${Brand.teal}` }}>✔︎ Verified</Button>
-              <Button style={{ background: `${Brand.orange}` }}>🛡 Insured</Button>
+              <Badge>✔︎ Verified</Badge>
+              <Badge tone="orange">🛡 Insured</Badge>
             </div>
           </div>
         </div>
@@ -287,7 +325,7 @@ const SupplierProfile = ({ supplier, onBack, onBook }) => {
   );
 };
 
-/* Booking */
+/* ---------- Booking ---------- */
 const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (€300)", onBack, onSelectTab }) => {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -334,7 +372,7 @@ const BookingPage = ({ supplier = "George Harris", selectedPackage = "Silver (�
   );
 };
 
-/* Bookings tab */
+/* ---------- Bookings tab ---------- */
 const BookingsTab = ({ onSelectTab }) => {
   const [bookings, setBookings] = useState([]);
   useEffect(() => {
@@ -376,7 +414,7 @@ const BookingsTab = ({ onSelectTab }) => {
   );
 };
 
-/* Help (Contact Form) */
+/* ---------- Help (Contact Form) ---------- */
 const HelpScreen = ({ onSelectTab }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -419,7 +457,7 @@ const HelpScreen = ({ onSelectTab }) => {
   );
 };
 
-/* About Us */
+/* ---------- About Us ---------- */
 const AboutScreen = ({ onSelectTab }) => (
   <Phone>
     <TopBar title="About Us" />
@@ -427,11 +465,15 @@ const AboutScreen = ({ onSelectTab }) => (
       <Card>
         <div style={{ fontFamily: "Poppins, sans-serif", fontWeight: 900, fontSize: 18 }}>✨ Welcome to All Event Hub</div>
         <div style={{ marginTop: 6 }}>Book Your Event Services. Tried & Trusted.</div>
-        <div style={{ marginTop: 6 }}>At All Event Hub, we make planning effortless. Whether you’re hosting a high-profile corporate conference, an intimate celebration, or a once-in-a-lifetime party, we connect you with the right suppliers — all in one place.</div>
+        <div style={{ marginTop: 6 }}>
+          At All Event Hub, we make planning effortless. Whether you’re hosting a high-profile corporate conference, an intimate celebration, or a once-in-a-lifetime party, we connect you with the right suppliers — all in one place.
+        </div>
       </Card>
       <Card>
         <div style={{ fontFamily: "Poppins, sans-serif", fontWeight: 900 }}>Who We Are</div>
-        <div style={{ marginTop: 6 }}>With over 40 years of combined experience in the events industry, our team has worked across both the corporate and private events arenas. From global summits to weddings, festivals, and brand activations — we’ve seen it all, and we know what it takes to deliver seamless, memorable experiences.</div>
+        <div style={{ marginTop: 6 }}>
+          With over 40 years of combined experience in the events industry, our team has worked across both the corporate and private events arenas. From global summits to weddings, festivals, and brand activations — we’ve seen it all, and we know what it takes to deliver seamless, memorable experiences.
+        </div>
       </Card>
       <Card>
         <div style={{ fontFamily: "Poppins, sans-serif", fontWeight: 900 }}>Why All Event Hub?</div>
@@ -447,62 +489,147 @@ const AboutScreen = ({ onSelectTab }) => (
   </Phone>
 );
 
-/* App (router) */
+/* ---------- App (router) ---------- */
 export default function App() {
   const [view, setView] = useState("home");
   const [category, setCategory] = useState("DJs");
   const [supplier, setSupplier] = useState(null);
 
   let screen;
-  if (view === "results") screen = (
-    <ResultsScreen category={category} onBack={() => setView("home")} onSelectSupplier={(s) => { setSupplier(s); setView("supplier"); }} />
-  );
-  if (view === "supplier") screen = (
-    <SupplierProfile supplier={supplier} onBack={() => setView("results")} onBook={() => setView("booking")} />
-  );
-  if (view === "booking") screen = (
-    <BookingPage supplier={supplier?.name || "George Harris"} selectedPackage={"Silver (€300)"} onBack={() => setView("supplier")} onSelectTab={setView} />
-  );
+  if (view === "results")
+    screen = (
+      <ResultsScreen
+        category={category}
+        onBack={() => setView("home")}
+        onSelectSupplier={(s) => {
+          setSupplier(s);
+          setView("supplier");
+        }}
+      />
+    );
+  if (view === "supplier")
+    screen = (
+      <SupplierProfile
+        supplier={supplier}
+        onBack={() => setView("results")}
+        onBook={() => setView("booking")}
+      />
+    );
+  if (view === "booking")
+    screen = (
+      <BookingPage
+        supplier={supplier?.name || "George Harris"}
+        selectedPackage={"Silver (€300)"}
+        onBack={() => setView("supplier")}
+        onSelectTab={setView}
+      />
+    );
   if (view === "bookings") screen = <BookingsTab onSelectTab={setView} />;
   if (view === "help") screen = <HelpScreen onSelectTab={setView} />;
   if (view === "about") screen = <AboutScreen onSelectTab={setView} />;
 
-  if (view === "home") screen = (
-    <Phone>
-      <TopBar title="All Event Hub" />
+  if (view === "home")
+    screen = (
+      <Phone>
+        <TopBar title="All Event Hub" />
 
-      <div style={{
-        background: `linear-gradient(135deg, ${Brand.navy} 0%, ${Brand.navy} 65%, ${Brand.teal}22 100%)`,
-        color: Brand.white, borderRadius: 20, padding: "20px 16px",
-        marginBottom: 16, display: "flex", alignItems: "center", gap: 12
-      }}>
-        <img src="/logo.png" alt="AllEventHub" style={{ width: 56, height: 56, borderRadius: 14, background: Brand.white }} />
-        <div style={{ flex: 1 }}>
-          <h2 style={{ fontFamily: "Poppins, sans-serif", fontWeight: 800, fontSize: 18, margin: 0 }}>Plan the perfect event</h2>
-          <p style={{ fontSize: 12, margin: "4px 0 0", opacity: 0.9 }}>Book trusted suppliers in minutes.</p>
-        </div>
-        <Button style={{ background: Brand.orange }} onClick={() => setView("results")}>Get Started</Button>
-      </div>
-
-      <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
-        {categories.map((c) => (
-          <div
-            key={c.key}
-            onClick={() => { setCategory(c.label); setView("results"); }}
-            style={{ ...styles.card, textAlign: "center", padding: 16, cursor: "pointer" }}
-          >
-            <div>{c.icon}</div>
-            <div style={{ fontSize: 12, fontWeight: 800, marginTop: 6, fontFamily: "Poppins, sans-serif" }}>{c.label}</div>
+        {/* Hero Banner */}
+        <div
+          style={{
+            background: `linear-gradient(135deg, ${Brand.navy} 0%, ${Brand.navy} 65%, ${Brand.teal}22 100%)`,
+            color: Brand.white,
+            borderRadius: 20,
+            padding: "20px 16px",
+            marginBottom: 16,
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <img
+            src="/logo.png"
+            alt="AllEventHub"
+            style={{ width: 56, height: 56, borderRadius: 14, background: Brand.white }}
+          />
+          <div style={{ flex: 1 }}>
+            <h2
+              style={{
+                fontFamily: "Poppins, sans-serif",
+                fontWeight: 800,
+                fontSize: 18,
+                margin: 0,
+              }}
+            >
+              Plan the perfect event
+            </h2>
+            <p style={{ fontSize: 12, margin: "4px 0 0", opacity: 0.9 }}>
+              Book trusted suppliers in minutes.
+            </p>
           </div>
-        ))}
-      </div>
+          <Button style={{ background: Brand.orange }} onClick={() => setView("results")}>
+            Get Started
+          </Button>
+        </div>
 
-      <BottomTabs active="home" onSelect={setView} />
-    </Phone>
-  );
+        {/* Category tiles (colored buttons) */}
+        <div
+          style={{
+            flex: 1,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 12,
+          }}
+        >
+          {categories.map((c) => (
+            <div
+              key={c.key}
+              onClick={() => {
+                setCategory(c.label);
+                setView("results");
+              }}
+              style={{
+                ...styles.card,
+                textAlign: "center",
+                padding: 16,
+                cursor: "pointer",
+                background: c.bg,
+                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+              onMouseDown={(e) => (e.currentTarget.style.transform = "scale(0.97)")}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+            >
+              <div>{c.icon}</div>
+              <div
+                style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  marginTop: 6,
+                  fontFamily: "Poppins, sans-serif",
+                }}
+              >
+                {c.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <BottomTabs active="home" onSelect={setView} />
+      </Phone>
+    );
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#eef2f6", padding: 16 }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#eef2f6",
+        padding: 16,
+      }}
+    >
       {screen}
     </div>
   );
